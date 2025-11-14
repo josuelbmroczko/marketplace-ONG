@@ -1,0 +1,41 @@
+package com.marketplace.marketplace.dto;
+
+import com.marketplace.marketplace.domain.Product;
+import java.math.BigDecimal;
+
+// @Data do Lombok também funciona aqui
+public class CartItem {
+
+    private Product product;
+    private int quantity;
+
+    public CartItem(Product product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
+
+    // Getters e Setters
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    // Método helper para calcular o subtotal deste item
+    public BigDecimal getSubtotal() {
+        if (product != null && product.getPrice() != null) {
+            return product.getPrice().multiply(new BigDecimal(quantity));
+        }
+        return BigDecimal.ZERO;
+    }
+}

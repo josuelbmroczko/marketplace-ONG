@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Carrinho</title>
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f4f7f9; color: #333; }
+        .container { max-width: 960px; margin: 20px auto; padding: 0 15px; }
+        .card { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .navbar { background-color: #343a40; padding: 10px 0; margin-bottom: 20px; }
+        .navbar-brand { color: #ffffff; font-size: 1.5rem; text-decoration: none; font-weight: bold; }
+        .btn-logout { background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+        .cart-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .cart-table th, .cart-table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; vertical-align: middle; }
+        .cart-table th { background-color: #f8f9fa; }
+        .product-image { max-width: 80px; height: auto; border-radius: 4px; }
+        .btn-danger { background-color: #dc3545; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 0.9em; }
+        .btn-primary { background-color: #007bff; color: white; text-decoration: none; padding: 12px 20px; border-radius: 4px; display: inline-block; font-size: 1.1rem; }
+        .cart-total { text-align: right; font-size: 1.5rem; font-weight: bold; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        <a class="navbar-brand" th:href="@{/}">Meu Sistema</a>
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="card">
+        <h1>Meu Carrinho</h1>
+
+        <div th:if="${param.error == 'stock_final'}" style="color: red; margin-bottom: 1rem;">
+            Desculpe! O estoque de um item acabou enquanto você finalizava. Verifique seu carrinho.
+        </div>
+
+        <div th:if="${cart.items.isEmpty()}">
+            <p>Seu carrinho está vazio.</p>
+            <a th:href="@{/produto}" class="btn-primary" style="background-color: #6c757d;">Voltar aos Produtos</a>
+        </div>
+
+        <div th:unless="${cart.items.isEmpty()}">
+            <table class="cart-table">
+                <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Preço</th>
+                    <th>Qtd.</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${cart.items}">
+                    <td th:text="${item.product.productName}">Nome do Produto</td>
+                    <td th:text="${#numbers.formatCurrency(item.product.price)}">R$ 0,00</td>
+                    <td th:text="${item.quantity}">1</td>
+                    <td th:text="${#numbers.formatCurrency(item.subtotal)}">R$ 0,00</td>
+                    <td>
+                        <a th:href="@{/cart/remove/{id}(id=${item.product.id})}" class="btn-danger">Remover</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="cart-total">
+                Total: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">R$ 0,00</span>
+            </div>
+
+            <a th:href="@{/checkout}" class="btn-primary" style="float: right; margin-top: 1rem;">Finalizar Compra</a>
+            <a th:href="@{/produto}" style="float: left; margin-top: 1.5rem;">Continuar comprando</a>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

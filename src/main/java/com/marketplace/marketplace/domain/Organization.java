@@ -21,6 +21,11 @@ public class Organization {
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<User> managers;
 
+    // Construtor vazio
+    public Organization() {
+    }
+
+    // Getters e Setters
     public UUID getId() {
         return id;
     }

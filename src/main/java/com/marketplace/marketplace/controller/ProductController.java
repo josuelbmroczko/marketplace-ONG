@@ -1,6 +1,5 @@
 package com.marketplace.marketplace.controller;
 
-
 import com.marketplace.marketplace.domain.Product;
 import com.marketplace.marketplace.repository.ProductRepository;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+// import static org.springframework.data.jpa.domain.AbstractPersistable_.id; // Esta linha não é necessária
 
 @RestController
 @RequestMapping("/api/product")
@@ -41,4 +40,6 @@ public class ProductController {
     public void deleteProduct(@PathVariable("id")UUID id){
         productRepository.deleteById(id);
     }
+
+    // GARANTA QUE A CLASSE UserRegistrationRequest NÃO ESTÁ AQUI DENTRO
 }
