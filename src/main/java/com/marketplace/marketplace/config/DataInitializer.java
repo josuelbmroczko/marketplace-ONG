@@ -11,9 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class DataInitializer {
 
-    /**
-     * Cria o usuário 'admin' padrão na inicialização.
-     */
     @Bean
     public CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -22,9 +19,9 @@ public class DataInitializer {
 
                 User admin = new User();
                 admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("admin123")); // Senha Padrão
+                admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRole(Role.ROLE_ADMIN);
-                admin.setOrganization(null); // Admin não tem ONG
+                admin.setOrganization(null);
 
                 userRepository.save(admin);
                 System.out.println("Usuário ADMIN criado com sucesso!");
