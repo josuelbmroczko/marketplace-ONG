@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - Bem-vindo!</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a class="navbar-brand" href="#">Meu Sistema</a>
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container content">
+    <div class="welcome-card">
+        <h1>Olá, <span class="username" sec:authentication="name">Usuário</span>!</h1>
+        <p>Seja bem-vindo ao painel de controle.</p>
+        <p>A partir daqui você pode navegar para outras seções do sistema, como a lista de produtos.</p>
+        <a th:href="@{/produto}" class="btn-primary">Ver Produtos</a>
+    </div>
+</main>
+
+</body>
+</html>

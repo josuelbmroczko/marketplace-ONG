@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador de Produtos</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+    <style>
+        /* Estilos reaproveitados e adaptados */
+        body { font-family: 'Roboto', sans-serif; background-color: #f4f7f9; color: #333; }
+        .container { max-width: 960px; margin: 20px auto; padding: 0 15px; }
+        .card { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        h1, h2 { color: #333; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: .5rem; font-weight: bold; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; font-size: 0.9em; padding: 5px 10px; }
+        .btn-warning { background-color: #ffc107; color: #212529; font-size: 0.9em; padding: 5px 10px; }
+
+        /* Tabela */
+        .product-table { width: 100%; border-collapse: collapse; margin-top: 2rem; }
+        .product-table th, .product-table td {
+            padding: 12px; border: 1px solid #ddd; text-align: left;
+        }
+        .product-table th { background-color: #007bff; color: white; }
+        .product-table tr:nth-child(even) { background-color: #f2f2f2; }
+        .actions { display: flex; gap: 5px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        <a class="navbar-brand" th:href="@{/}">Meu Sistema</a>
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div class="card">
+        <h2 th:text="${produto.id == null} ? 'Adicionar Novo Produto' : 'Editar Produto'">Adicionar Produto</h2>
+        <form th:action="@{/produto/salvar}" th:object="${produto}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group">
+                <label for="productName">Nome do Produto:</label>
+                <input type="text" id="productName" th:field="*{productName}" required>
+            </div>
+            <div class="form-group">
+                <label for="amout">Quantidade:</label>
+                <input type="text" id="amout" th:field="*{amout}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Descrição:</label>
+                <textarea id="description" th:field="*{description}" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Salvar Produto</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Produtos Cadastrados</h2>
+        <table class="product-table">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="prod : ${produtos}">
+                <td th:text="${prod.productName}">Nome do Produto</td>
+                <td th:text="${prod.amout}">10</td>
+                <td th:text="${prod.description}">Descrição aqui...</td>
+                <td>
+                    <div class="actions">
+                        <a th:href="@{/produto/editar/{id}(id=${prod.id})}" class="btn btn-warning">Editar</a>
+                        <a th:href="@{/produto/deletar/{id}(id=${prod.id})}" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja deletar este produto?');">Deletar</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+</body>
+</html>
