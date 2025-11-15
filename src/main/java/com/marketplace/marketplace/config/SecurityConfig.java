@@ -37,19 +37,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Desabilita CSRF
-                .httpBasic(Customizer.withDefaults()) // Mantém o login do Postman
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(Customizer.withDefaults())
 
                 .authorizeHttpRequests(authorize -> authorize
                         // 1. Acessos Públicos
                         .requestMatchers(
                                 "/login",
                                 "/css/**",
-                                "/register",        // Página de registro (GET)
-                                "/register/salvar"  // Ação de registro (POST)
+                                "/register",
+                                "/register/salvar"
                         ).permitAll()
 
-                        // 2. Acessos Autenticados (Qualquer Role)
                         .requestMatchers(
                                 "/",
                                 "/produto",
@@ -60,28 +59,23 @@ public class SecurityConfig {
                                 "/order-success"
                         ).authenticated()
 
-                        // 3. Acessos de Gerente/Admin (Gerenciamento de Produtos pela Web)
                         .requestMatchers(
                                 "/produto/salvar",
                                 "/produto/editar/**",
                                 "/produto/deletar/**"
                         ).hasAnyRole("GERENTE", "ADMIN")
 
-                        // 4. Acessos SÓ DE ADMIN (Páginas Web de Admin)
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // 5. Acessos SÓ DE ADMIN (APIs de Admin)
                         .requestMatchers(
-                                "/api/users/**",    // API de criar/listar usuários
-                                "/api/org/**"       // API de criar/listar ONGs
+                                "/api/users/**",
+                                "/api/org/**"
                         ).hasRole("ADMIN")
 
-                        // 6. API de Produtos (Gerente/Admin)
                         .requestMatchers(HttpMethod.POST, "/api/product").hasAnyRole("GERENTE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/product/**").hasAnyRole("GERENTE", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/product/**").hasAnyRole("GERENTE", "ADMIN")
 
-                        // 7. Qualquer outra coisa, precisa estar logado
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
