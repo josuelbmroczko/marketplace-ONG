@@ -1,42 +1,369 @@
+/* =========================================
+   RESET BÁSICO E CONFIGURAÇÕES GLOBAIS
+   ========================================= */
+
+/* Faz o padding e a borda não aumentarem o tamanho total do elemento */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f4f7f6;
+  color: #333;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
+  /* Remove o 'max-width' antigo para permitir controle total */
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* =========================================
+   LAYOUT PRINCIPAL (CONTAINER E CARDS)
+   ========================================= */
+
+/* 'container' centraliza o conteúdo e adiciona padding */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem; /* Padding para telas móveis */
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem; /* Mais padding em telas maiores */
+  }
+}
+
+/* 'card' é o bloco de conteúdo branco principal */
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden; /* Para conter floats, se houver */
+}
+
+/* 'login-card' é uma versão mais estreita para login/registro */
+.login-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 2rem;
+  max-width: 450px;
+  margin: 2rem auto; /* Centraliza na tela */
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.register-link {
+  margin-top: 1.5rem;
+  font-size: 0.9em;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* =========================================
+   FORMULÁRIOS (INPUTS, BOTÕES, LABELS)
+   ========================================= */
+
+.form-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column; /* Coloca o label acima do input */
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Estilo padrão para todos os inputs e selects */
+input[type='text'],
+input[type='password'],
+input[type='number'],
+input[type='email'],
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Botões */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  color: #fff;
+  text-align: center;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background-color: #007bff;
+}
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-success {
+  background-color: #28a745;
+}
+.btn-success:hover {
+  background-color: #1e7e34;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+}
+.btn-danger:hover {
+  background-color: #a71d2a;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+.btn-warning:hover {
+  background-color: #d39e00;
+}
+
+/* Botão de login/registro em largura total */
+.btn-login {
+  width: 100%;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* =========================================
+   TABELAS (DATA-TABLE, PRODUCT-TABLE)
+   ========================================= */
+
+/* Wrapper para fazer a tabela rolar horizontalmente em telas pequenas */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Rolagem suave em iOS */
+}
+
+/* O ID que você já usa na página de produtos */
+#product-list-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table,
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  min-width: 600px; /* Força a rolagem horizontal se for menor que isso */
+}
+
+.data-table th,
+.data-table td,
+.product-table th,
+.product-table td {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.data-table thead,
+.product-table thead {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.product-image {
+  max-width: 80px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.cart-add-form {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.cart-add-form input[type='number'] {
+  width: 60px;
+  padding: 5px;
+}
+
+.out-of-stock {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* =========================================
+   FILTROS (PRODUCT PAGE)
+   ========================================= */
+
+.filter-form {
+  display: grid;
+  gap: 1.5rem;
+  /* Mágica da responsividade:
+     Cria colunas de no mínimo 200px.
+     Em telas pequenas, fica 1 coluna.
+     Em telas médias/grandes, ele se ajusta automaticamente.
+  */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* =========================================
+   CHECKOUT PAGE (A CORREÇÃO PRINCIPAL)
+   ========================================= */
+
+.checkout-layout {
+  display: flex;
+  flex-direction: column; /* Mobile-first: empilhado por padrão */
+  gap: 2rem;
+}
+
+.checkout-form {
+  flex: 1; /* Ocupa o espaço disponível */
+}
+
+.checkout-summary {
+  flex: 1; /* Ocupa o espaço disponível */
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.checkout-summary ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checkout-summary li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+/* Em telas maiores (desktop), coloca lado a lado */
+@media (min-width: 992px) {
+  .checkout-layout {
+    flex-direction: row; /* Lado a lado */
+    align-items: flex-start; /* Alinha no topo */
   }
-  to {
-    transform: rotate(360deg);
+
+  .checkout-form {
+    flex: 2; /* Formulário fica com 2/3 do espaço */
+  }
+
+  .checkout-summary {
+    flex: 1; /* Resumo fica com 1/3 do espaço */
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* =========================================
+   MENSAGENS (ERRO, SUCESSO)
+   ========================================= */
+
+.error-message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
 }
 
-.card {
-  padding: 2em;
+.success-message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
 }
 
-.read-the-docs {
-  color: #888;
+.ai-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.nav-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: #007bff;
+  text-decoration: none;
+}
+.nav-link:hover {
+  text-decoration: underline;
 }

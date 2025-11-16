@@ -11,12 +11,10 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // Relacionamento: Muitos itens pertencem a um pedido
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    // Relacionamento: Muitos itens de pedido apontam para um produto
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -24,7 +22,6 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    // Getters e Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public Order getOrder() { return order; }

@@ -1,5 +1,4 @@
-version: '3.8' # Esta linha é obsoleta, pode apagá-la se quiser
-
+# A linha 'version' foi removida pois era obsoleta
 services:
   # --- 1. O Banco de Dados Postgres ---
   postgres:
@@ -12,9 +11,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # --- CORREÇÃO APLICADA AQUI ---
-      # Montamos na raiz, e o Postgres 18+ irá criar
-      # a sua própria sub-pasta (ex: /18/data) dentro do volume.
       - marketplace-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U marketplace_user -d marketplace_db"]
@@ -32,7 +28,20 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/marketplace_db
       SPRING_DATASOURCE_USERNAME: marketplace_user
       SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+
+      # --- MUDANÇAS AQUI ---
+      # 1. 'update' é mais seguro e rápido em inicializações futuras do que 'create'
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # 2. Propriedades de Resiliência (A CORREÇÃO PRINCIPAL)
+      # Diz ao Spring para esperar indefinidamente (0) se o banco não estiver pronto,
+      # em vez de falhar imediatamente.
+      SPRING_DATASOURCE_HIKARI_INITIALIZATION-FAIL-TIMEOUT: 0
+
+      # 3. Aumenta o tempo limite de conexão para 2 minutos
+      SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT: 120000
+      # --- FIM DAS MUDANÇAS ---
+
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       GEMINI_API_URL: ${GEMINI_API_URL}
     depends_on:

@@ -15,7 +15,7 @@ public class ProductDTO {
     private BigDecimal price;
     private Integer quantity;
     private String imageUrl;
-    private String category; // <- Continua String (ex: "Alimento")
+    private String category;
     private String organizationName;
 
     public ProductDTO(Product product) {
@@ -25,13 +25,9 @@ public class ProductDTO {
         this.price = product.getPrice();
         this.quantity = product.getQuantity();
         this.imageUrl = product.getImageUrl();
-
-        // --- ATUALIZADO ---
-        // Converte o Enum no seu nome amigável
         if (product.getCategory() != null) {
             this.category = product.getCategory().getDisplayName();
         }
-        // --- FIM DA ATUALIZAÇÃO ---
 
         if (product.getOrganization() != null) {
             this.organizationName = product.getOrganization().getName();

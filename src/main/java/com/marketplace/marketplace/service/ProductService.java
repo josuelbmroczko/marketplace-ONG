@@ -1,113 +1,102 @@
 package com.marketplace.marketplace.service;
 
+import com.marketplace.marketplace.domain.Organization;
 import com.marketplace.marketplace.domain.Product;
-import com.marketplace.marketplace.dto.AiSearchResponse;
+import com.marketplace.marketplace.domain.Role;
+import com.marketplace.marketplace.domain.User;
 import com.marketplace.marketplace.dto.AiSearchResult;
-import com.marketplace.marketplace.dto.ProductDTO;
-import com.marketplace.marketplace.dto.SearchFilters;
+import com.marketplace.marketplace.repository.OrganizationRepository;
 import com.marketplace.marketplace.repository.ProductRepository;
-import com.marketplace.marketplace.repository.ProductSpecification;
-import net.logstash.logback.marker.Markers; // Importe os Markers
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class ProductService {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
-
     private final ProductRepository productRepository;
-    private final ProductSpecification productSpecification;
-    private final AiSearchService aiSearchService; // Interface da IA
+    private final OrganizationRepository organizationRepository;
 
-    public ProductService(ProductRepository productRepository,
-                          ProductSpecification productSpecification,
-                          AiSearchService aiSearchService) { // Construtor atualizado
+    public ProductService(ProductRepository productRepository, OrganizationRepository organizationRepository) {
         this.productRepository = productRepository;
-        this.productSpecification = productSpecification;
-        this.aiSearchService = aiSearchService;
+        this.organizationRepository = organizationRepository;
     }
 
-    /**
-     * Busca com filtros manuais (usada pela busca ao vivo / AJAX)
-     */
-    public List<ProductDTO> searchProducts(String name,
-                                           BigDecimal minPrice,
-                                           BigDecimal maxPrice,
-                                           String category,
-                                           String sortDirection) {
 
-        Specification<Product> spec = productSpecification.findByFilters(name, minPrice, maxPrice, category);
-        Sort sort = createSort(sortDirection);
-        List<Product> products = productRepository.findAll(spec, sort);
+    public Product updateProduct(UUID productId, Product productDetails, User loggedInUser) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
 
-        return products.stream()
-                .map(ProductDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Busca com IA (com Fallback e Logs Estruturados)
-     */
-    public AiSearchResult aiSearch(String query) {
-        Specification<Product> spec;
-        String friendlyMessage = null; // Mensagem padrão de fallback
-
-        try {
-            // 1. Tenta usar a IA
-            AiSearchResponse aiResponse = aiSearchService.parseSearchQuery(query);
-            SearchFilters filters = aiResponse.getFilters();
-
-            // 2. LOG DE SUCESSO DA IA
-            log.info("Busca por IA SUCESSO",
-                    Markers.append("ai_query", query),
-                    Markers.append("ai_filters_result", filters), // O DTO será serializado para JSON
-                    Markers.append("ai_fallback", false)
-            );
-
-            spec = productSpecification.findByFilters(filters);
-            friendlyMessage = aiResponse.getFriendlyMessage();
-
-        } catch (Exception e) {
-            // 3. LOG DE FALHA DA IA (FALLBACK)
-            log.warn("Busca por IA FALHA (usando fallback)",
-                    Markers.append("ai_query", query),
-                    Markers.append("ai_error", e.getMessage()),
-                    Markers.append("ai_fallback", true)
-            );
-
-            spec = productSpecification.findByAiFallback(query);
-            friendlyMessage = "Desculpe, não entendi bem. Mas encontrei estes produtos com base no que você digitou!";
+        if (loggedInUser.getRole() == Role.ROLE_GERENTE) {
+            if (product.getOrganization() == null || !product.getOrganization().getId().equals(loggedInUser.getOrganization().getId())) {
+                throw new AccessDeniedException("Gerente não tem permissão para editar este produto.");
+            }
         }
 
-        // O filtro de Tenant já está ativo em qualquer 'findAll'
-        List<Product> products = productRepository.findAll(spec);
+        product.setProductName(productDetails.getProductName());
+        product.setPrice(productDetails.getPrice());
+        product.setQuantity(productDetails.getQuantity());
+        product.setCategory(productDetails.getCategory());
+        product.setImageUrl(productDetails.getImageUrl());
+        product.setDescription(productDetails.getDescription());
+        product.setAmout(productDetails.getAmout());
 
-        List<ProductDTO> productDTOs = products.stream()
-                .map(ProductDTO::new)
-                .collect(Collectors.toList());
+        if (loggedInUser.getRole() == Role.ROLE_ADMIN) {
+            if (productDetails.getOrganization() != null && productDetails.getOrganization().getId() != null) {
+                Organization org = organizationRepository.findById(productDetails.getOrganization().getId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada"));
+                product.setOrganization(org);
+            } else {
+                product.setOrganization(null);
+            }
+        }
 
-        // Retorna o DTO com a lista de produtos E a mensagem
-        return new AiSearchResult(productDTOs, friendlyMessage);
+        return productRepository.save(product);
     }
 
-    /**
-     * Helper privado para criar o objeto Sort
-     */
-    private Sort createSort(String sortDirection) {
-        Sort sort = Sort.unsorted();
-        if ("asc".equals(sortDirection)) {
-            sort = Sort.by(Sort.Direction.ASC, "price");
-        } else if ("desc".equals(sortDirection)) {
-            sort = Sort.by(Sort.Direction.DESC, "price");
+    public Product createProduct(Product product, User loggedInUser) {
+        if (loggedInUser.getRole() == Role.ROLE_GERENTE) {
+            product.setOrganization(loggedInUser.getOrganization());
+        } else if (loggedInUser.getRole() == Role.ROLE_ADMIN) {
+            if (product.getOrganization() == null || product.getOrganization().getId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Admin deve selecionar uma ONG para o produto.");
+            }
+            Organization org = organizationRepository.findById(product.getOrganization().getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada"));
+            product.setOrganization(org);
         }
-        return sort;
+
+        return productRepository.save(product);
+    }
+
+    public void deleteProduct(UUID productId, User loggedInUser) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
+
+        if (loggedInUser.getRole() == Role.ROLE_GERENTE) {
+            if (product.getOrganization() == null || !product.getOrganization().getId().equals(loggedInUser.getOrganization().getId())) {
+                throw new AccessDeniedException("Gerente não tem permissão para apagar este produto.");
+            }
+        }
+
+        productRepository.delete(product);
+    }
+
+
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public List<Product> findWithFilters(String name, BigDecimal minPrice, BigDecimal maxPrice, String category, String sort, String aiQuery) {
+        return List.of();
+    }
+
+    public AiSearchResult aiSearch(String aiQuery) {
+        return null;
     }
 }

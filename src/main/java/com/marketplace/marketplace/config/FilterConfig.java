@@ -9,7 +9,9 @@ public class FilterConfig {
 
     @Bean
     public FilterRegistrationBean<LoggingFilter> loggingFilterRegistration(LoggingFilter filter) {
+
         FilterRegistrationBean<LoggingFilter> registration = new FilterRegistrationBean<>(filter);
+
         registration.addUrlPatterns("/*");
         registration.setName("loggingFilter");
         registration.setOrder(1);

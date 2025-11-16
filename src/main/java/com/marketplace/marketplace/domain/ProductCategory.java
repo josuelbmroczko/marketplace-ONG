@@ -1,8 +1,5 @@
 package com.marketplace.marketplace.domain;
 
-/**
- * Define as categorias de produtos padronizadas.
- */
 public enum ProductCategory {
 
     ALIMENTO("Alimento"),

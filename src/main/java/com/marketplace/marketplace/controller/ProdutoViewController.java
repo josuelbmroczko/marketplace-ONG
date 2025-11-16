@@ -2,7 +2,7 @@ package com.marketplace.marketplace.controller;
 
 import com.marketplace.marketplace.domain.Organization;
 import com.marketplace.marketplace.domain.Product;
-import com.marketplace.marketplace.domain.ProductCategory; // Importe o Enum
+import com.marketplace.marketplace.domain.ProductCategory;
 import com.marketplace.marketplace.domain.Role;
 import com.marketplace.marketplace.domain.User;
 import com.marketplace.marketplace.dto.AiSearchResult;
@@ -46,9 +46,6 @@ public class ProdutoViewController {
         return (User) authentication.getPrincipal();
     }
 
-    /**
-     * Mostra a página completa de produtos (com filtros)
-     */
     @GetMapping
     public String listarProdutos(
             @RequestParam(required = false) String aiQuery,
@@ -84,16 +81,11 @@ public class ProdutoViewController {
         }
         model.addAttribute("produto", new Product());
 
-        // --- ATUALIZADO ---
-        // Envia a lista de categorias para os dropdowns
         model.addAttribute("allCategories", ProductCategory.values());
 
         return "produtos";
     }
 
-    /**
-     * Endpoint de BUSCA AO VIVO (AJAX)
-     */
     @GetMapping("/filter")
     public String filterProducts(
             @RequestParam(required = false) String name,
@@ -106,15 +98,11 @@ public class ProdutoViewController {
         List<ProductDTO> produtosDTO = productService.searchProducts(name, minPrice, maxPrice, category, sort);
         model.addAttribute("produtos", produtosDTO);
 
-        // (Opcional) Envia as categorias também para o fragmento
         model.addAttribute("allCategories", ProductCategory.values());
 
         return "produtos :: #product-list-container";
     }
 
-    /**
-     * Salva um produto (usado por Admin/Gerente)
-     */
     @PostMapping("/salvar")
     public String salvarProduto(@ModelAttribute Product produto) {
         User user = getLoggedInUser();
@@ -131,9 +119,6 @@ public class ProdutoViewController {
         return "redirect:/produto";
     }
 
-    /**
-     * Mostra o formulário de edição (para Admin/Gerente)
-     */
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEdicao(@PathVariable("id") UUID id, Model model) {
         User user = getLoggedInUser();
@@ -155,8 +140,6 @@ public class ProdutoViewController {
             model.addAttribute("organizations", organizationRepository.findAll());
         }
 
-        // --- ATUALIZADO ---
-        // Envia a lista de categorias para o formulário de edição
         model.addAttribute("allCategories", ProductCategory.values());
 
         model.addAttribute("produto", produto);
@@ -164,9 +147,6 @@ public class ProdutoViewController {
         return "produtos";
     }
 
-    /**
-     * Deleta um produto (para Admin/Gerente)
-     */
     @GetMapping("/deletar/{id}")
     public String deletarProduto(@PathVariable("id") UUID id) {
         User user = getLoggedInUser();

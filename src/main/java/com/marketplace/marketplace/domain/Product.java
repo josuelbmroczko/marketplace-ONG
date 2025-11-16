@@ -5,6 +5,7 @@ import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "organizationId", type = UUID.class))
@@ -40,16 +41,16 @@ public class Product {
     @Column(name = "image_url", length = 1024)
     private String imageUrl;
 
-    // --- CAMPO ATUALIZADO ---
-    @Enumerated(EnumType.STRING) // Salva o nome do Enum (ex: "ALIMENTO")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "category")
     private ProductCategory category;
-    // --- FIM DA ATUALIZAÇÃO ---
 
     public Product() {
     }
 
-    // --- GETTERS E SETTERS ---
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -75,7 +76,6 @@ public class Product {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    // --- GETTER/SETTER ATUALIZADO ---
     public ProductCategory getCategory() {
         return category;
     }

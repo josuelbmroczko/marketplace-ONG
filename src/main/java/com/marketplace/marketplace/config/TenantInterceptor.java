@@ -24,7 +24,6 @@ public class TenantInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         Session session = entityManager.unwrap(Session.class);
 
         session.disableFilter("tenantFilter");
@@ -33,20 +32,23 @@ public class TenantInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if (!(authentication.getPrincipal() instanceof User)) {
+            return true;
+        }
+
         User user = (User) authentication.getPrincipal();
 
         if (user.getRole() != Role.ROLE_ADMIN) {
-
             if (user.getOrganization() != null) {
                 UUID organizationId = user.getOrganization().getId();
                 session.enableFilter("tenantFilter")
                         .setParameter("organizationId", organizationId);
             } else {
-
                 session.enableFilter("tenantFilter")
                         .setParameter("organizationId", UUID.fromString("00000000-0000-0000-0000-000000000000"));
             }
         }
+
         return true;
     }
 }

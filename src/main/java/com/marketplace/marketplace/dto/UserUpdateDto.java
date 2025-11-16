@@ -1,18 +1,14 @@
 package com.marketplace.marketplace.dto;
 
-
 import java.util.UUID;
 
-public class UserRegistrationRequest {
+public class UserUpdateDto {
 
     private String username;
     private String password;
     private String role;
     private UUID organizationId;
 
-    public UserRegistrationRequest() {
-
-    }
 
     public String getUsername() {
         return username;
@@ -45,13 +41,4 @@ public class UserRegistrationRequest {
     public void setOrganizationId(UUID organizationId) {
         this.organizationId = organizationId;
     }
-
-    public UserRegistrationRequest(String username, String password, String role, UUID organizationId) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-        this.organizationId = organizationId;
-    }
-
-
 }

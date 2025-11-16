@@ -8,9 +8,8 @@ import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
-import java.util.UUID;
+
 
 @Component
 public class LoggingFilter implements Filter {
@@ -33,7 +32,6 @@ public class LoggingFilter implements Filter {
                 }
             }
 
-            // 2. Adiciona dados da Requisição ao MDC
             MDC.put("http_method", httpServletRequest.getMethod());
             MDC.put("http_path", httpServletRequest.getRequestURI());
             chain.doFilter(request, response);

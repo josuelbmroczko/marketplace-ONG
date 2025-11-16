@@ -3,7 +3,6 @@ package com.marketplace.marketplace.domain;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-// Import do Filtro
 import org.hibernate.annotations.Filter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,8 +17,6 @@ import java.util.UUID;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-// 1. APLICAÇÃO DO FILTRO
-// Agora, Usuários/Gerentes só podem ver outros usuários da sua própria ONG
 @Filter(name = "tenantFilter", condition = "organization_id = :organizationId")
 public class User implements UserDetails {
 
@@ -44,7 +41,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
-    // --- Getters e Setters ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public String getUsername() { return username; }
@@ -58,7 +54,6 @@ public class User implements UserDetails {
     public List<Order> getOrders() { return orders; }
     public void setOrders(List<Order> orders) { this.orders = orders; }
 
-    // --- Métodos do UserDetails ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.name()));

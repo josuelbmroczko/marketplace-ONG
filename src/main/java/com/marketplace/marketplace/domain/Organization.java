@@ -1,5 +1,6 @@
 package com.marketplace.marketplace.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.UUID;
@@ -15,17 +16,17 @@ public class Organization {
     @Column(nullable = false)
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> products;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<User> managers;
 
-    // Construtor vazio
     public Organization() {
     }
 
-    // Getters e Setters
     public UUID getId() {
         return id;
     }

@@ -33,6 +33,4 @@ public class OrderController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
     }
 
-    // NOTA: Você precisará adicionar métodos POST/PUT aqui
-    // para permitir que usuários criem pedidos.
 }

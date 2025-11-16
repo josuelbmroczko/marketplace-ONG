@@ -21,7 +21,6 @@ public class OrganizationController {
 
     @PostMapping
     public Organization createOrganization(@RequestBody Organization organization) {
-        // Simplesmente salva a organização vinda do Postman
         return organizationRepository.save(organization);
     }
 

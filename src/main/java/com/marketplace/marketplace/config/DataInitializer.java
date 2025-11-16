@@ -25,7 +25,6 @@ public class DataInitializer {
 
                 userRepository.save(admin);
                 System.out.println("Usuário ADMIN criado com sucesso!");
-            }
-        };
+            }};
     }
 }

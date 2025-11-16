@@ -3,20 +3,19 @@ package com.marketplace.marketplace.controller;
 import com.marketplace.marketplace.domain.Organization;
 import com.marketplace.marketplace.domain.Role;
 import com.marketplace.marketplace.domain.User;
+import com.marketplace.marketplace.dto.UserRegistrationRequest;
 import com.marketplace.marketplace.repository.OrganizationRepository;
 import com.marketplace.marketplace.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.UUID;
+import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping("/api/register")
 public class RegistrationController {
 
     private final UserRepository userRepository;
@@ -31,28 +30,24 @@ public class RegistrationController {
         this.organizationRepository = organizationRepository;
     }
 
-    @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("organizations", organizationRepository.findAll());
-        return "register";
-    }
+    @PostMapping("/salvar")
+    public ResponseEntity<?> processRegistration(@RequestBody UserRegistrationRequest request) {
 
-    @PostMapping("/register/salvar")
-    public String processRegistration(@RequestParam("username") String username,
-                                      @RequestParam("password") String password,
-                                      @RequestParam("organizationId") UUID organizationId) {
-
-        Organization org = organizationRepository.findById(organizationId)
+        Organization org = organizationRepository.findById(request.getOrganizationId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ONG selecionada é inválida."));
 
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este nome de usuário já está em uso.");
+        }
+
         User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setUsername(request.getUsername());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setRole(Role.ROLE_USUARIO);
-        newUser.setOrganization(org); // Associa o usuário à ONG
+        newUser.setOrganization(org);
 
         userRepository.save(newUser);
 
-        return "redirect:/login?registered=true";
+        return ResponseEntity.ok(Map.of("message", "Usuário registrado com sucesso!"));
     }
 }

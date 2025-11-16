@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true) // Ignora campos extras que a IA possa mandar
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AiSearchResponse {
 
     private String friendlyMessage;

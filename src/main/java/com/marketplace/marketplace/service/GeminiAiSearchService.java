@@ -2,8 +2,9 @@ package com.marketplace.marketplace.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.marketplace.marketplace.dto.AiSearchResponse; // Importe o novo DTO
+import com.marketplace.marketplace.dto.AiSearchResponse;
 import com.marketplace.marketplace.dto.SearchFilters;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class GeminiAiSearchService implements AiSearchService {
     }
 
     @Override
-    public AiSearchResponse parseSearchQuery(String query) throws Exception { // 1. Mude o tipo de retorno
+    public AiSearchResponse parseSearchQuery(String query) throws Exception {
         log.info("Enviando consulta para a API do Gemini: '{}'", query);
 
         String prompt = buildPrompt(query);
@@ -58,12 +59,10 @@ public class GeminiAiSearchService implements AiSearchService {
 
         log.info("JSON completo (com mensagem) recebido do Gemini: {}", jsonText);
 
-        // 2. Converta o JSON no novo DTO AiSearchResponse
         return objectMapper.readValue(jsonText, AiSearchResponse.class);
     }
 
     private String buildPrompt(String query) {
-        // 3. ATUALIZE O PROMPT
         return "Você é um assistente de busca para um e-commerce de ONGs, simulando um vendedor amigável. " +
                 "Converta a seguinte consulta de usuário em um JSON de filtros E crie uma 'friendlyMessage' confirmando a busca. " +
                 "A consulta é: '" + query + "'.\n\n" +
@@ -80,28 +79,62 @@ public class GeminiAiSearchService implements AiSearchService {
                 "Retorne APENAS o JSON.";
     }
 
-    // --- DTOs Internos para a API do Gemini (sem alteração) ---
     @Data
     private static class GeminiRequest {
         private final List<Content> contents;
+
+        private GeminiRequest(List<Content> contents) {
+            this.contents = contents;
+        }
     }
-    // ... (O resto dos DTOs internos: Content, Part, GeminiResponse, Candidate)
     @Data
     private static class Content {
         private final List<Part> parts;
+
+        private Content(List<Part> parts) {
+            this.parts = parts;
+        }
+
+        public List<Part> getParts() {
+            return parts;
+        }
     }
     @Data
     private static class Part {
         private final String text;
+
+        private Part(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return text;
+        }
     }
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class GeminiResponse {
         private List<Candidate> candidates;
+
+        public List<Candidate> getCandidates() {
+            return candidates;
+        }
+
+        public void setCandidates(List<Candidate> candidates) {
+            this.candidates = candidates;
+        }
     }
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Candidate {
         private Content content;
+
+        public Content getContent() {
+            return content;
+        }
+
+        public void setContent(Content content) {
+            this.content = content;
+        }
     }
 }

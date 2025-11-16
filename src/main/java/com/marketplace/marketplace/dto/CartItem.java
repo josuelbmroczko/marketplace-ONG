@@ -3,7 +3,6 @@ package com.marketplace.marketplace.dto;
 import com.marketplace.marketplace.domain.Product;
 import java.math.BigDecimal;
 
-// @Data do Lombok também funciona aqui
 public class CartItem {
 
     private Product product;
@@ -31,7 +30,6 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    // Método helper para calcular o subtotal deste item
     public BigDecimal getSubtotal() {
         if (product != null && product.getPrice() != null) {
             return product.getPrice().multiply(new BigDecimal(quantity));

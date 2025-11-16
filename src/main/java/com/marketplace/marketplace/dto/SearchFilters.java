@@ -3,9 +3,6 @@ package com.marketplace.marketplace.dto;
 import lombok.Data;
 import java.math.BigDecimal;
 
-/**
- * DTO que armazena os filtros estruturados retornados pela IA.
- */
 
 public class SearchFilters {
     private String name;

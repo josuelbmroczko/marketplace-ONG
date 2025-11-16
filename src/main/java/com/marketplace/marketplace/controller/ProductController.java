@@ -1,45 +1,64 @@
 package com.marketplace.marketplace.controller;
 
 import com.marketplace.marketplace.domain.Product;
-import com.marketplace.marketplace.repository.ProductRepository;
+import com.marketplace.marketplace.domain.User;
+import com.marketplace.marketplace.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-
-// import static org.springframework.data.jpa.domain.AbstractPersistable_.id; // Esta linha não é necessária
 
 @RestController
 @RequestMapping("/api/product")
 public class ProductController {
-    private ProductRepository productRepository;
-    public ProductController(ProductRepository productRepository){
-        this.productRepository=productRepository;
+
+    private final ProductService productService;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
-    @GetMapping("/{id}")
-    public Product getProductById(@PathVariable("id") UUID id) {
-        return productRepository.findById(id).orElse(null);
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String aiQuery
+    ) {
+        List<Product> products = productService.findWithFilters(name, minPrice, maxPrice, category, sort, aiQuery);
+        return ResponseEntity.ok(products);
     }
 
     @PostMapping
-    public Product addProduct(@RequestBody Product product){
-        return productRepository.save(product);
+    public ResponseEntity<Product> createProduct(
+            @RequestBody Product product,
+            @AuthenticationPrincipal User loggedInUser) {
+
+        Product newProduct = productService.createProduct(product, loggedInUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
-    @GetMapping
-    public List<Product> listProduct(){
-        return productRepository.findAll();
-    }
+
     @PutMapping("/{id}")
-    public void editProduct(@PathVariable("id") UUID id, @RequestBody Product product){
-        product.setId(id);
-        productRepository.save(product);
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable UUID id,
+            @RequestBody Product productDetails,
+            @AuthenticationPrincipal User loggedInUser) {
+
+        Product updatedProduct = productService.updateProduct(id, productDetails, loggedInUser);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable("id")UUID id){
-        productRepository.deleteById(id);
-    }
+    public ResponseEntity<Void> deleteProduct(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User loggedInUser) {
 
-    // GARANTA QUE A CLASSE UserRegistrationRequest NÃO ESTÁ AQUI DENTRO
+        productService.deleteProduct(id, loggedInUser);
+        return ResponseEntity.noContent().build();
+    }
 }
