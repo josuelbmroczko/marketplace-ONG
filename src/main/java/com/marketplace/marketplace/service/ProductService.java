@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -30,9 +30,9 @@ public class ProductService {
         this.organizationRepository = organizationRepository;
     }
 
-    @Transactional
-    public Product updateProduct(UUID productId, Product productDetails, User loggedInUser) {
 
+    @Transactional
+    public ProductDTO updateProduct(UUID productId, Product productDetails, User loggedInUser) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
 
@@ -51,20 +51,15 @@ public class ProductService {
         product.setAmout(productDetails.getAmout());
 
         if (loggedInUser.getRole() == Role.ROLE_ADMIN) {
-            if (productDetails.getOrganization() != null && productDetails.getOrganization().getId() != null) {
-                Organization org = organizationRepository.findById(productDetails.getOrganization().getId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada"));
-                product.setOrganization(org);
-            } else {
-                product.setOrganization(null);
-            }
+
         }
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        return new ProductDTO(savedProduct);
     }
 
     @Transactional
-    public Product createProduct(Product product, User loggedInUser) {
+    public ProductDTO createProduct(Product product, User loggedInUser) {
         if (loggedInUser.getRole() == Role.ROLE_GERENTE) {
             product.setOrganization(loggedInUser.getOrganization());
         } else if (loggedInUser.getRole() == Role.ROLE_ADMIN) {
@@ -75,35 +70,42 @@ public class ProductService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada"));
             product.setOrganization(org);
         }
-
         product.setOrderItems(null);
-        return productRepository.save(product);
+
+        Product savedProduct = productRepository.save(product);
+        return new ProductDTO(savedProduct);
     }
 
     @Transactional
     public void deleteProduct(UUID productId, User loggedInUser) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
-
         if (loggedInUser.getRole() == Role.ROLE_GERENTE) {
-            if (product.getOrganization() == null || !product.getOrganization().getId().equals(loggedInUser.getOrganization().getId())) {
-                throw new AccessDeniedException("Gerente não tem permissão para apagar este produto.");
-            }
         }
-
         productRepository.delete(product);
     }
 
-    public List<Product> findWithFilters(String name, BigDecimal minPrice, BigDecimal maxPrice, String category, String sort, String aiQuery) {
 
-        return productRepository.findAll();
+    public List<ProductDTO> findWithFilters(String name, BigDecimal minPrice, BigDecimal maxPrice, String category, String sort) {
+
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .map(ProductDTO::new)
+                .collect(Collectors.toList());
     }
 
     public AiSearchResult aiSearch(String aiQuery) {
-        return null;
+
+        List<Product> products = productRepository.findByProductNameContainingIgnoreCase(aiQuery);
+
+        List<ProductDTO> productDTOs = products.stream()
+                .map(ProductDTO::new)
+                .collect(Collectors.toList());
+
+        String message = "Busca por IA encontrou " + productDTOs.size() + " produtos para '" + aiQuery + "'.";
+
+        return new AiSearchResult(productDTOs, message);
     }
 
-    public List<ProductDTO> searchProducts(String name, BigDecimal minPrice, BigDecimal maxPrice, String category, String sort) {
-        return Collections.emptyList();
-    }
 }

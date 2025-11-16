@@ -1,8 +1,6 @@
 package com.marketplace.marketplace.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import java.util.List;
 
 @Data
@@ -16,14 +14,6 @@ public class AiSearchResult {
         this.friendlyMessage = friendlyMessage;
     }
 
-    public List<ProductDTO> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<ProductDTO> products) {
-        this.products = products;
-    }
-
     public String getFriendlyMessage() {
         return friendlyMessage;
     }
@@ -32,5 +22,11 @@ public class AiSearchResult {
         this.friendlyMessage = friendlyMessage;
     }
 
+    public List<ProductDTO> getProducts() {
+        return products;
+    }
 
+    public void setProducts(List<ProductDTO> products) {
+        this.products = products;
+    }
 }

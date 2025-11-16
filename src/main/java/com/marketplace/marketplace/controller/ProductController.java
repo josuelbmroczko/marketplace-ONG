@@ -2,6 +2,8 @@ package com.marketplace.marketplace.controller;
 
 import com.marketplace.marketplace.domain.Product;
 import com.marketplace.marketplace.domain.User;
+import com.marketplace.marketplace.dto.AiSearchResult;
+import com.marketplace.marketplace.dto.ProductDTO;
 import com.marketplace.marketplace.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/product") // Este é o controller para sua API React
+@RequestMapping("/api/product")
 public class ProductController {
 
     private final ProductService productService;
@@ -21,37 +23,46 @@ public class ProductController {
         this.productService = productService;
     }
 
+
     @GetMapping
-    public ResponseEntity<List<Product>> getProducts(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String aiQuery
+    public ResponseEntity<?> getProducts( // <-- MUDOU AQUI
+                                          @RequestParam(required = false) String name,
+                                          @RequestParam(required = false) BigDecimal minPrice,
+                                          @RequestParam(required = false) BigDecimal maxPrice,
+                                          @RequestParam(required = false) String category,
+                                          @RequestParam(required = false) String sort,
+                                          @RequestParam(required = false) String aiQuery
     ) {
-        // A lógica de busca real está no service
-        List<Product> products = productService.findWithFilters(name, minPrice, maxPrice, category, sort, aiQuery);
-        return ResponseEntity.ok(products);
+
+        if (aiQuery != null && !aiQuery.isEmpty()) {
+
+            AiSearchResult result = productService.aiSearch(aiQuery);
+            return ResponseEntity.ok(result);
+
+        } else {
+
+            List<ProductDTO> products = productService.findWithFilters(name, minPrice, maxPrice, category, sort);
+            return ResponseEntity.ok(products);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(
+    public ResponseEntity<ProductDTO> createProduct(
             @RequestBody Product product,
             @AuthenticationPrincipal User loggedInUser) {
 
-        Product newProduct = productService.createProduct(product, loggedInUser);
+        ProductDTO newProduct = productService.createProduct(product, loggedInUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<ProductDTO> updateProduct(
             @PathVariable UUID id,
             @RequestBody Product productDetails,
             @AuthenticationPrincipal User loggedInUser) {
 
-        Product updatedProduct = productService.updateProduct(id, productDetails, loggedInUser);
-
+        ProductDTO updatedProduct = productService.updateProduct(id, productDetails, loggedInUser);
         return ResponseEntity.ok(updatedProduct);
     }
 
