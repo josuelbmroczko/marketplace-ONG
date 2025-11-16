@@ -3,6 +3,7 @@ package com.marketplace.marketplace.service;
 import com.marketplace.marketplace.domain.Organization;
 import com.marketplace.marketplace.domain.Role;
 import com.marketplace.marketplace.domain.User;
+import com.marketplace.marketplace.dto.UserDTO;
 import com.marketplace.marketplace.dto.UserRegistrationRequest;
 import com.marketplace.marketplace.dto.UserUpdateDto;
 import com.marketplace.marketplace.repository.OrganizationRepository;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -30,7 +32,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User registerUser(UserRegistrationRequest request) {
+    public UserDTO registerUser(UserRegistrationRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -38,7 +40,7 @@ public class UserService {
         try {
             user.setRole(Role.valueOf("ROLE_" + request.getRole().toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role inválida. Use ADMIN, GERENTE ou USUARIO.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role inválida.");
         }
 
         if (user.getRole() == Role.ROLE_GERENTE) {
@@ -49,21 +51,31 @@ public class UserService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada."));
             user.setOrganization(org);
         }
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+        return new UserDTO(savedUser);
     }
 
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+
+    public List<UserDTO> findAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toList());
     }
 
-    public User findUserById(UUID id) {
+    public UserDTO findUserById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        return new UserDTO(user);
+    }
+
+    private User findUserEntityById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
-
-    public User updateUser(UUID id, UserUpdateDto updateDto) {
-        User user = findUserById(id);
-
+    public UserDTO updateUser(UUID id, UserUpdateDto updateDto) {
+        User user = findUserEntityById(id);
         user.setUsername(updateDto.getUsername());
 
         if (updateDto.getPassword() != null && !updateDto.getPassword().isEmpty()) {
@@ -87,7 +99,8 @@ public class UserService {
             user.setOrganization(null);
         }
 
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return new UserDTO(updatedUser);
     }
 
     public void deleteUser(UUID id) {

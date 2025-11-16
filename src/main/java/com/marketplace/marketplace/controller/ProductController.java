@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/product") // Este é o controller para sua API React
 public class ProductController {
 
     private final ProductService productService;
+
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
 
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(
@@ -30,6 +30,7 @@ public class ProductController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String aiQuery
     ) {
+        // A lógica de busca real está no service
         List<Product> products = productService.findWithFilters(name, minPrice, maxPrice, category, sort, aiQuery);
         return ResponseEntity.ok(products);
     }
@@ -50,6 +51,7 @@ public class ProductController {
             @AuthenticationPrincipal User loggedInUser) {
 
         Product updatedProduct = productService.updateProduct(id, productDetails, loggedInUser);
+
         return ResponseEntity.ok(updatedProduct);
     }
 

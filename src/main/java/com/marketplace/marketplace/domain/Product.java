@@ -83,4 +83,7 @@ public class Product {
     public void setCategory(ProductCategory category) {
         this.category = category;
     }
+
+    public void setOrderItems(Object o) {
+    }
 }

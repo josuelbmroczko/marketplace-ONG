@@ -5,14 +5,17 @@ import com.marketplace.marketplace.domain.Product;
 import com.marketplace.marketplace.domain.Role;
 import com.marketplace.marketplace.domain.User;
 import com.marketplace.marketplace.dto.AiSearchResult;
+import com.marketplace.marketplace.dto.ProductDTO;
 import com.marketplace.marketplace.repository.OrganizationRepository;
 import com.marketplace.marketplace.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +30,9 @@ public class ProductService {
         this.organizationRepository = organizationRepository;
     }
 
-
+    @Transactional
     public Product updateProduct(UUID productId, Product productDetails, User loggedInUser) {
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
 
@@ -59,6 +63,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @Transactional
     public Product createProduct(Product product, User loggedInUser) {
         if (loggedInUser.getRole() == Role.ROLE_GERENTE) {
             product.setOrganization(loggedInUser.getOrganization());
@@ -71,9 +76,11 @@ public class ProductService {
             product.setOrganization(org);
         }
 
+        product.setOrderItems(null);
         return productRepository.save(product);
     }
 
+    @Transactional
     public void deleteProduct(UUID productId, User loggedInUser) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
@@ -87,16 +94,16 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
-    }
-
     public List<Product> findWithFilters(String name, BigDecimal minPrice, BigDecimal maxPrice, String category, String sort, String aiQuery) {
-        return List.of();
+
+        return productRepository.findAll();
     }
 
     public AiSearchResult aiSearch(String aiQuery) {
         return null;
+    }
+
+    public List<ProductDTO> searchProducts(String name, BigDecimal minPrice, BigDecimal maxPrice, String category, String sort) {
+        return Collections.emptyList();
     }
 }

@@ -1,8 +1,7 @@
 package com.marketplace.marketplace.controller;
 
-import com.marketplace.marketplace.domain.User;
+import com.marketplace.marketplace.dto.UserDTO;
 import com.marketplace.marketplace.dto.UserRegistrationRequest;
-
 import com.marketplace.marketplace.dto.UserUpdateDto;
 import com.marketplace.marketplace.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -22,30 +21,34 @@ public class UserController {
         this.userService = userService;
     }
 
+    // 2. MODIFICADO: Retorna ResponseEntity<UserDTO>
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UserRegistrationRequest request) {
-        User newUser = userService.registerUser(request);
+    public ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequest request) {
+        UserDTO newUser = userService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
+    // 3. MODIFICADO: Retorna ResponseEntity<List<UserDTO>>
+    // Esta é a correção principal para o seu problema da tabela vazia
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.findAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
 
+    // 4. MODIFICADO: Retorna ResponseEntity<UserDTO>
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") UUID id) {
-        User user = userService.findUserById(id);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable("id") UUID id) {
+        UserDTO user = userService.findUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
+    public ResponseEntity<UserDTO> updateUser(
             @PathVariable("id") UUID id,
             @RequestBody UserUpdateDto updateDto) {
 
-        User updatedUser = userService.updateUser(id, updateDto);
+        UserDTO updatedUser = userService.updateUser(id, updateDto);
         return ResponseEntity.ok(updatedUser);
     }
 
