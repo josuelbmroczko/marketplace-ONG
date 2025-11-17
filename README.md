@@ -62,6 +62,9 @@ git clone https://github.com/josuelbmroczko/marketplace-ONG.git
 cd marketplace-ONG
 Crie o arquivo de ambiente: Crie um arquivo chamado .env na raiz do projeto e adicione suas chaves de API. Você pode usar o docker-compose.yml como base:
 
+GEMINI_API_KEY=
+GEMINI_API_URL=
+
 Snippet de código
 
 # Configuração do Banco de Dados Docker
