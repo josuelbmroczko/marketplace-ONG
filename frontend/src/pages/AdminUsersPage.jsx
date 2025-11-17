@@ -278,6 +278,7 @@ function AdminUsersPage() {
                 <th>Role</th>
                 <th>ONG</th>
                 <th>Ações</th>
+                <th>⚙️</th>
               </tr>
             </thead>
             <tbody>

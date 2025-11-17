@@ -1,14 +1,15 @@
 package com.marketplace.marketplace.dto;
 
-import lombok.Data;
-import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.math.BigDecimal;
 
 public class SearchFilters {
     private String name;
     private String category;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
+    private String sort;
 
     public String getName() {
         return name;
@@ -42,10 +43,21 @@ public class SearchFilters {
         this.maxPrice = maxPrice;
     }
 
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
     public SearchFilters(String name, String category, BigDecimal minPrice, BigDecimal maxPrice) {
         this.name = name;
         this.category = category;
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
+        this.sort = null;
     }
+
+    public SearchFilters() { }
 }

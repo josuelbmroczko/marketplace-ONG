@@ -53,20 +53,15 @@ function CheckoutPage() {
 
 return (
     <div className="container">
-      {/* O "card" principal não precisa mais de 'overflow: hidden',
-        pois não estamos mais usando 'float'.
-      */}
+ 
       <div className="card">
         <h1>Finalizar Compra</h1>
         {error && <div className="error-message">{error}</div>}
 
-        {/* ESTA É A MUDANÇA PRINCIPAL:
-          Um novo wrapper 'checkout-layout' usa Flexbox
-          para organizar o formulário e o resumo.
-        */}
+    
         <div className="checkout-layout">
           
-          {/* Coluna do Formulário */}
+      
           <div className="checkout-form">
             <h3>Seus Dados</h3>
             <form onSubmit={handleSubmit}>
@@ -94,7 +89,7 @@ return (
             </form>
           </div>
 
-          {/* Coluna do Resumo do Pedido */}
+      
           <div className="checkout-summary">
             <h3>Resumo do Pedido</h3>
             <ul>
@@ -111,9 +106,9 @@ return (
             </h4>
           </div>
 
-        </div> {/* Fim de .checkout-layout */}
-      </div> {/* Fim de .card */}
-    </div> /* Fim de .container */
+        </div> 
+      </div> 
+    </div> 
   );
 }
 

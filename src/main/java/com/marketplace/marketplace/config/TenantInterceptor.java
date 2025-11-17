@@ -28,24 +28,19 @@ public class TenantInterceptor implements HandlerInterceptor {
 
         session.disableFilter("tenantFilter");
 
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
             return true;
         }
 
-        if (!(authentication.getPrincipal() instanceof User)) {
-            return true;
-        }
 
         User user = (User) authentication.getPrincipal();
 
-        if (user.getRole() != Role.ROLE_ADMIN) {
+        if (user.getRole() == Role.ROLE_GERENTE) {
+
             if (user.getOrganization() != null) {
                 UUID organizationId = user.getOrganization().getId();
                 session.enableFilter("tenantFilter")
                         .setParameter("organizationId", organizationId);
-            } else {
-                session.enableFilter("tenantFilter")
-                        .setParameter("organizationId", UUID.fromString("00000000-0000-0000-0000-000000000000"));
             }
         }
 

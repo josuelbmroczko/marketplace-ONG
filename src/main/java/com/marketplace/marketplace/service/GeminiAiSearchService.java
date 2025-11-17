@@ -62,79 +62,80 @@ public class GeminiAiSearchService implements AiSearchService {
         return objectMapper.readValue(jsonText, AiSearchResponse.class);
     }
 
+    // -----------------------------------------------------------------
+    // AQUI ESTÁ A MUDANÇA (O PROMPT MELHORADO)
+    // -----------------------------------------------------------------
     private String buildPrompt(String query) {
-        return "Você é um assistente de busca para um e-commerce de ONGs, simulando um vendedor amigável. " +
-                "Converta a seguinte consulta de usuário em um JSON de filtros E crie uma 'friendlyMessage' confirmando a busca. " +
+        return "Você é um assistente de busca para um e-commerce de ONGs, simulando um vendedor BEM amigável e caloroso. " +
+                "Converta a seguinte consulta de usuário em um JSON de filtros E crie uma 'friendlyMessage' confirmando a busca de forma humana e curta. " +
                 "A consulta é: '" + query + "'.\n\n" +
+                "REGRAS IMPORTANTES:\n" +
+                "1. A 'friendlyMessage' É OBRIGATÓRIA. Seja criativo!\n" +
+                "2. (SINÔNIMOS) TENTE adivinhar a categoria. 'Ração', 'Feijão', 'Comida' ou 'Alimentação' é 'ALIMENTO'. 'Coleira' ou 'Passeio' é 'ACESSORIO'. 'Remédio' ou 'Medicamento' é 'MEDICAMENTO'. 'Jogos' ou 'Bola' é 'BRINQUEDO'.\n" +
+                "3. (EXTRAIR NOME) Se o usuário digitar o NOME de um produto (ex: 'ração', 'remédio', 'feijão', 'piolho'), COLOQUE ESSE NOME no filtro 'name'.\n" +
+                "4. (PREÇO) Se o usuário pedir 'barato', use 'maxPrice: 50'. Se pedir 'caro', use 'minPrice: 100'.\n" +
+                "5. (ORDENAÇÃO) Se o usuário pedir 'mais barato', use 'sort: \"price_asc\"'. Se pedir 'mais caro', use 'sort: \"price_desc\"'.\n" +
+                "6. (ORTOGRAFIA) Corrija erros de ortografia. 'rmedio' deve ser 'remédio'. 'brincedo' deve ser 'brinquedo'.\n\n" +
                 "O formato JSON obrigatório é: \n" +
                 "{\n" +
                 "  \"friendlyMessage\": \"Uma frase amigável, ex: 'Claro! Buscando X para você.'\",\n" +
-                "  \"filters\": {\"name\": \"string_ou_null\", \"category\": \"string_ou_null\", \"minPrice\": numero_ou_null, \"maxPrice\": numero_ou_null}\n" +
+                "  \"filters\": {\"name\": \"string_ou_null\", \"category\": \"string_ou_null\", \"minPrice\": numero_ou_null, \"maxPrice\": numero_ou_null, \"sort\": \"string_ou_null\"}\n" +
                 "}\n\n" +
                 "Exemplos:\n" +
-                "Consulta: 'ração de cachorro barata'\n" +
-                "JSON: {\"friendlyMessage\": \"Com certeza! Estou procurando as melhores rações para cães por menos de R$50.\", \"filters\": {\"name\": \"ração\", \"category\": \"alimento\", \"minPrice\": null, \"maxPrice\": 50.0}}\n\n" +
-                "Consulta: 'coleiras acima de 100 reais'\n" +
-                "JSON: {\"friendlyMessage\": \"Entendido! Vamos ver as coleiras mais estilosas acima de R$100!\", \"filters\": {\"name\": \"coleira\", \"category\": \"acessório\", \"minPrice\": 100.0, \"maxPrice\": null}}\n\n" +
+                "Consulta: 'tem comida?'\n" +
+                "JSON: {\"friendlyMessage\": \"Claro! Buscando comidas para você!\", \"filters\": {\"name\": null, \"category\": \"ALIMENTO\", \"minPrice\": null, \"maxPrice\": null, \"sort\": null}}\n\n" +
+                "Consulta: 'presiso de um rmedio para piolho'\n" +
+                "JSON: {\"friendlyMessage\": \"Certo! Buscando remédios para piolho.\", \"filters\": {\"name\": \"piolho\", \"category\": \"MEDICAMENTO\", \"minPrice\": null, \"maxPrice\": null, \"sort\": null}}\n\n" +
+                "Consulta: 'qual o feijão mais barato?'\n" +
+                "JSON: {\"friendlyMessage\": \"Opa! Buscando o feijão mais em conta!\", \"filters\": {\"name\": \"feijão\", \"category\": \"ALIMENTO\", \"minPrice\": null, \"maxPrice\": null, \"sort\": \"price_asc\"}}\n\n" +
+                "Consulta: 'jogos'\n" +
+                "JSON: {\"friendlyMessage\": \"Ok! Vamos ver os brinquedos e jogos!\", \"filters\": {\"name\": \"jogos\", \"category\": \"BRINQUEDO\", \"minPrice\": null, \"maxPrice\": null, \"sort\": null}}\n\n" +
                 "Retorne APENAS o JSON.";
     }
 
     @Data
     private static class GeminiRequest {
         private final List<Content> contents;
-
         private GeminiRequest(List<Content> contents) {
             this.contents = contents;
         }
     }
-    @Data
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Content {
-        private final List<Part> parts;
+        private List<Part> parts;
 
-        private Content(List<Part> parts) {
-            this.parts = parts;
-        }
+        public Content(List<Part> parts) { this.parts = parts; }
+        public Content() {}
 
-        public List<Part> getParts() {
-            return parts;
-        }
+        public List<Part> getParts() { return parts; }
+        public void setParts(List<Part> parts) { this.parts = parts; }
     }
-    @Data
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Part {
-        private final String text;
+        private String text;
 
-        private Part(String text) {
-            this.text = text;
-        }
+        public Part(String text) { this.text = text; }
+        public Part() {}
 
-        public String getText() {
-            return text;
-        }
+        public String getText() { return text; }
+        public void setText(String text) { this.text = text; }
     }
-    @Data
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class GeminiResponse {
         private List<Candidate> candidates;
 
-        public List<Candidate> getCandidates() {
-            return candidates;
-        }
-
-        public void setCandidates(List<Candidate> candidates) {
-            this.candidates = candidates;
-        }
+        public List<Candidate> getCandidates() { return candidates; }
+        public void setCandidates(List<Candidate> candidates) { this.candidates = candidates; }
     }
-    @Data
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Candidate {
         private Content content;
 
-        public Content getContent() {
-            return content;
-        }
-
-        public void setContent(Content content) {
-            this.content = content;
-        }
+        public Content getContent() { return content; }
+        public void setContent(Content content) { this.content = content; }
     }
 }

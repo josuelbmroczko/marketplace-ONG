@@ -2,8 +2,10 @@ package com.marketplace.marketplace.controller;
 
 import com.marketplace.marketplace.domain.Product;
 import com.marketplace.marketplace.domain.User;
+import com.marketplace.marketplace.dto.AiSearchResponse;
 import com.marketplace.marketplace.dto.AiSearchResult;
 import com.marketplace.marketplace.dto.ProductDTO;
+import com.marketplace.marketplace.service.GeminiAiSearchService;
 import com.marketplace.marketplace.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,19 +21,22 @@ public class ProductController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    private final GeminiAiSearchService aiSearchService;
+
+    public ProductController(ProductService productService, GeminiAiSearchService aiSearchService) {
         this.productService = productService;
+        this.aiSearchService = aiSearchService;
     }
 
 
     @GetMapping
-    public ResponseEntity<?> getProducts( // <-- MUDOU AQUI
-                                          @RequestParam(required = false) String name,
-                                          @RequestParam(required = false) BigDecimal minPrice,
-                                          @RequestParam(required = false) BigDecimal maxPrice,
-                                          @RequestParam(required = false) String category,
-                                          @RequestParam(required = false) String sort,
-                                          @RequestParam(required = false) String aiQuery
+    public ResponseEntity<?> getProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String aiQuery
     ) {
 
         if (aiQuery != null && !aiQuery.isEmpty()) {
@@ -45,6 +50,21 @@ public class ProductController {
             return ResponseEntity.ok(products);
         }
     }
+
+    @GetMapping("/test-ai")
+    public ResponseEntity<?> testAi(@RequestParam String query) {
+        System.out.println("\n\n--- INICIANDO TESTE DIRETO DA IA ---");
+        try {
+            AiSearchResponse response = aiSearchService.parseSearchQuery(query);
+            System.out.println("--- TESTE DA IA BEM-SUCEDIDO ---");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("--- TESTE DA IA FALHOU: " + e.getMessage() + " ---");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao chamar IA: " + e.getMessage());
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(

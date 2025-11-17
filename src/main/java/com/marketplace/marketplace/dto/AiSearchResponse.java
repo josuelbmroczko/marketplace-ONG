@@ -10,6 +10,19 @@ public class AiSearchResponse {
     private String friendlyMessage;
     private SearchFilters filters;
 
+    // --- CONSTRUTOR ANTIGO (DEIXE ELE AQUI) ---
+    public AiSearchResponse(String friendlyMessage, SearchFilters filters) {
+        this.friendlyMessage = friendlyMessage;
+        this.filters = filters;
+    }
+
+    // --- ADICIONE ESTE NOVO CONSTRUTOR VAZIO ---
+    // O Jackson (leitor de JSON) precisa disto para funcionar
+    public AiSearchResponse() {
+    }
+    // --- FIM DA CORREÇÃO ---
+
+
     public String getFriendlyMessage() {
         return friendlyMessage;
     }
@@ -23,11 +36,6 @@ public class AiSearchResponse {
     }
 
     public void setFilters(SearchFilters filters) {
-        this.filters = filters;
-    }
-
-    public AiSearchResponse(String friendlyMessage, SearchFilters filters) {
-        this.friendlyMessage = friendlyMessage;
         this.filters = filters;
     }
 }

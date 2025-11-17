@@ -12,8 +12,6 @@ public class CartItem {
         this.product = product;
         this.quantity = quantity;
     }
-
-    // Getters e Setters
     public Product getProduct() {
         return product;
     }
