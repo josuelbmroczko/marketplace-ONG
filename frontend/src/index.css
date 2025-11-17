@@ -77,12 +77,14 @@ h3 {
   font-size: 1.5rem;
   text-decoration: none;
   font-weight: bold;
+ 
 }
 
 .navbar-link {
   color: white;
   margin-left: 15px;
   text-decoration: none;
+  border-bottom: 2px solid rgb(236, 236, 236);
 }
 
 .logout-form {

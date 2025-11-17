@@ -26,6 +26,9 @@ function LoginPage() {
   return (
     <div className="login-card">
       <h1>Acessar Sistema</h1>
+      <p>Acesso admin para teste:</p>
+      <p>login:  admin</p>
+      <span>senha:  admin123</span>
       {error && <div className="error-message">{error}</div>}
       
       {location.search.includes('registered=true') && (

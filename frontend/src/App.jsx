@@ -26,18 +26,16 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container">
         <div>
-          <Link to="/" className="navbar-brand">Marketplace</Link>
-          {user && (
-            <Link to="/cart" className="navbar-link">Carrinho</Link>
-          )}
+      <Link to="/" className="navbar-brand">Marketplace</Link>
+    
 
           {user && user.role === 'ROLE_ADMIN' && (
             <>
               <Link to="/admin/orgs" className="navbar-link">
-                Gerenciar ONGs
+                Criar e Gerenciar ONGs 
               </Link>
               <Link to="/admin/users" className="navbar-link">
-                Gerenciar Usuários
+                Criar e Gerenciar Usuários,Gerentes e Admis
               </Link>
             </>
           )}
