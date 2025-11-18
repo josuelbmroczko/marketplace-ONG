@@ -146,3 +146,6 @@ marketplace-ONG/
 │       ├── application.properties
 │       ├── logback.xml
 │       └── static/  # O build do React é cop
+
+rodar o curl
+curl "https://generativelanguage.googleapis.com/v1beta/models?key=APIDASUAIA"

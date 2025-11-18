@@ -69,7 +69,7 @@ function ProductPage() {
         .then(response => {
           setProdutos(response.data.products || []);
           setAiMessage(response.data.friendlyMessage || "Busca concluída.");
-          
+
           const aiFilters = response.data.filters;
           if (aiFilters) {
             setFilters({
@@ -97,7 +97,7 @@ function ProductPage() {
       setLoading(true);
       setAiMessage(null);
       const params = new URLSearchParams();
-      
+
       if (debouncedNameFilter) params.append('name', debouncedNameFilter);
       if (filters.minPrice) params.append('minPrice', filters.minPrice);
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
@@ -117,10 +117,10 @@ function ProductPage() {
         });
     }
   }, [
-    debouncedNameFilter, 
-    filters.minPrice, 
-    filters.maxPrice, 
-    filters.category, 
+    debouncedNameFilter,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.category,
     filters.sort,
     debouncedAiQuery
   ]);
@@ -258,7 +258,6 @@ function ProductPage() {
 
   const handleAiQueryChange = (e) => {
     setAiQuery(e.target.value);
-
     setFilters({ name: '', minPrice: '', maxPrice: '', category: '', sort: '' });
   };
 
@@ -277,30 +276,203 @@ function ProductPage() {
     setFilters({ name: '', minPrice: '', maxPrice: '', category: '', sort: '' });
   };
 
-  const getColumnCount = () => {
-    let visibleColumns = ['Foto', 'Nome', 'Preço', 'Estoque'];
-    if (user && user.role === 'ROLE_USUARIO') {
-      visibleColumns.push('ONG', 'Comprar');
-    } else if (user && (user.role === 'ROLE_ADMIN' || user.role === 'ROLE_GERENTE')) {
-      visibleColumns.push('Ações');
-    } else if (!user) {
-      visibleColumns.push('ONG');
-    }
-    return visibleColumns.length;
-  };
-
-  const filteredAndSortedProducts = useMemo(() => {
-    return produtos;
-  }, [produtos]);
-
-
   return (
     <div className="product-page-container">
-
       <style>{`
-        .buy-action { display: flex; align-items: center; justify-content: space-around; }
-        .quantity-input { width: 50px; margin-right: 5px; text-align: center; }
-        .product-image { max-width: 60px; height: auto; border-radius: 4px; }
+        .product-page-container {
+          padding: 15px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .card {
+          background: white;
+          border-radius: 8px;
+          padding: 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+          margin-bottom: 15px;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-sizing: border-box;
+        }
+        
+        .filter-form {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        
+        .filter-form input,
+        .filter-form select,
+        .filter-form button {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+        }
+        
+        .btn {
+          padding: 10px 15px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        
+        .product-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+        }
+        
+        .product-table th,
+        .product-table td {
+          padding: 12px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+        }
+        
+        .product-image {
+          max-width: 60px;
+          height: auto;
+          border-radius: 4px;
+        }
+        
+        .buy-action {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        
+        .quantity-input {
+          width: 50px;
+          text-align: center;
+          padding: 5px;
+        }
+        
+        .actions {
+          display: flex;
+          gap: 5px;
+        }
+        
+        .error-message {
+          background: #f8d7da;
+          color: #721c24;
+          padding: 10px;
+          border-radius: 4px;
+          margin-bottom: 20px;
+        }
+        
+        .ai-message {
+          background: #d1ecf1;
+          color: #0c5460;
+          padding: 10px;
+          border-radius: 4px;
+          margin-bottom: 20px;
+        }
+        
+        .loading, .empty-state {
+          text-align: center;
+          padding: 20px;
+          color: #6c757d;
+        }
+        
+        /* Cards para mobile */
+        .products-grid {
+          display: none;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+        }
+        
+        .product-card {
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 15px;
+          background: white;
+        }
+        
+        .product-card-header {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 15px;
+        }
+        
+        .product-card-image {
+          max-width: 80px;
+          height: auto;
+          border-radius: 4px;
+        }
+        
+        .product-card-info {
+          flex: 1;
+        }
+        
+        .product-card-actions {
+          margin-top: 15px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+          .product-table {
+            display: none;
+          }
+          
+          .products-grid {
+            display: grid;
+          }
+          
+          .filter-form {
+            grid-template-columns: 1fr;
+          }
+          
+          .actions {
+            flex-direction: column;
+          }
+          
+          .buy-action {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          
+          .quantity-input {
+            width: 100%;
+            margin-bottom: 5px;
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .products-grid {
+            display: none;
+          }
+        }
       `}</style>
 
       {error && <div className="error-message">{error}</div>}
@@ -373,6 +545,7 @@ function ProductPage() {
           />
         </div>
       )}
+
       {aiMessage && (<div className="ai-message"><strong>{aiMessage}</strong></div>)}
 
       <div className="card">
@@ -404,19 +577,17 @@ function ProductPage() {
                 <th>Nome</th>
                 <th>Preço</th>
                 <th>Estoque</th>
-                {(user && user.role === 'ROLE_USUARIO') || !user ? <th>ONG</th> : null}
                 {user && (user.role === 'ROLE_ADMIN' || user.role === 'ROLE_GERENTE') ? <th>Ações</th> : null}
                 {user && user.role === 'ROLE_USUARIO' ? <th>Comprar</th> : null}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={getColumnCount()} className="loading">Carregando produtos...</td></tr>
-
-              ) : filteredAndSortedProducts.length === 0 ? (
-                <tr><td colSpan={getColumnCount()} className="empty-state">Nenhum produto encontrado.</td></tr>
+                <tr><td colSpan="5" className="loading">Carregando produtos...</td></tr>
+              ) : produtos.length === 0 ? (
+                <tr><td colSpan="5" className="empty-state">Nenhum produto encontrado.</td></tr>
               ) : (
-                filteredAndSortedProducts.map(prod => (
+                produtos.map(prod => (
                   <tr key={prod.id}>
                     <td>
                       {prod.imageUrl ? (
@@ -440,40 +611,52 @@ function ProductPage() {
                         <span style={{ color: 'red' }}>Esgotado</span>
                       )}
                     </td>
-                    {(user && user.role === 'ROLE_USUARIO') || !user ? (
-                      <td>
-                        <span style={{ fontSize: '13px', color: '#495057' }}>
-                          {prod.organization ? prod.organization.name : 'N/A'}
-                        </span>
-                      </td>
-                    ) : null}
+
                     {user && (user.role === 'ROLE_ADMIN' || user.role === 'ROLE_GERENTE') ? (
                       <td>
                         <div className="actions">
                           <button onClick={() => handleEditClick(prod)} className="btn btn-warning">Editar</button>
                           <button onClick={() => handleDeleteProduct(prod.id)} className="btn btn-danger">Deletar</button>
                         </div>
-
                       </td>
                     ) : null}
+
                     {user && user.role === 'ROLE_USUARIO' ? (
                       <td>
                         <div className="buy-action">
-                          <input
-                            type="number"
-                            min="1"
-                            max={prod.quantity}
-                            value={cartQuantities[prod.id] || 1}
-                            onChange={(e) => handleCartQtyChange(prod.id, e.target.value)}
-                            className="quantity-input"
-                            disabled={prod.quantity === 0}
-                          />
+                          {/* 1. Botão de SUBTRAÇÃO (-) */}
+                          <button
+                            onClick={() => handleCartQtyChange(prod.id, (cartQuantities[prod.id] || 1) - 1)}
+                            className="btn btn-secondary btn-sm"
+                            disabled={(cartQuantities[prod.id] || 1) <= 1 || prod.quantity === 0}
+                          >
+                            -
+                          </button>
+
+                          {/* 2. Display da Quantidade Atual */}
+                          <span
+                            className="quantity-display"
+                            style={{ margin: '0 8px', width: '30px', textAlign: 'center' }}
+                          >
+                            {cartQuantities[prod.id] || 1}
+                          </span>
+
+                          {/* 3. Botão de ADIÇÃO (+) */}
+                          <button
+                            onClick={() => handleCartQtyChange(prod.id, (cartQuantities[prod.id] || 1) + 1)}
+                            className="btn btn-secondary btn-sm"
+                            disabled={(cartQuantities[prod.id] || 1) >= prod.quantity || prod.quantity === 0}
+                          >
+                            +
+                          </button>
+
                           <button
                             onClick={() => handleAddToCart(prod.id, prod.quantity)}
-                            className="btn btn-success btn-sm"
-                            disabled={prod.quantity === 0}
+                            className="btn btn-success"
+                            style={{ marginTop: '10px' }}
+                            disabled={prod.quantity === 0 || (cartQuantities[prod.id] || 1) > prod.quantity}
                           >
-                            {prod.quantity > 0 ? 'Comprar' : 'Esgotado'}
+                            {prod.quantity > 0 ? 'Adicionar ao Carrinho' : '  Esgotado'}
                           </button>
                         </div>
                       </td>
@@ -484,6 +667,91 @@ function ProductPage() {
             </tbody>
           </table>
         </div>
+
+        <div className="products-grid">
+          {loading ? (
+            <div className="loading">Carregando produtos...</div>
+          ) : produtos.length === 0 ? (
+            <div className="empty-state">Nenhum produto encontrado.</div>
+          ) : (
+            produtos.map(prod => (
+              <div key={prod.id} className="product-card">
+                <div className="product-card-header">
+                  {prod.imageUrl ? (
+                    <img src={prod.imageUrl} alt={prod.productName} className="product-card-image" onError={(e) => { e.target.src = 'https://via.placeholder.com/80'; }} />
+                  ) : (
+                    <img src="https://via.placeholder.com/80" alt="Sem foto" className="product-card-image" />
+                  )}
+                  <div className="product-card-info">
+                    <strong>{prod.productName}</strong>
+                    <div style={{ color: '#28a745', fontWeight: 'bold' }}>R$ {prod.price ? prod.price.toFixed(2) : '0.00'}</div>
+                    <div style={{ color: prod.quantity > 0 ? 'green' : 'red', fontSize: '14px' }}>
+                      {prod.quantity > 0 ? `${prod.quantity} em estoque` : 'Esgotado'}
+                    </div>
+                  </div>
+                </div>
+
+                {prod.description && <p style={{ fontSize: '14px', margin: '10px 0' }}>{prod.description}</p>}
+                {prod.amout && <small style={{ color: '#6c757d' }}>{prod.amout}</small>}
+
+                <div className="product-card-actions">
+                  {user && (user.role === 'ROLE_ADMIN' || user.role === 'ROLE_GERENTE') ? (
+                    <div className="actions">
+                      <button onClick={() => handleEditClick(prod)} className="btn btn-warning">Editar</button>
+                      <button onClick={() => handleDeleteProduct(prod.id)} className="btn btn-danger">Deletar</button>
+                    </div>
+                  ) : null}
+
+                  {user && user.role === 'ROLE_USUARIO' ? (
+                    <td>
+                      <div className="buy-action">
+                        <button
+                          onClick={() => handleCartQtyChange(prod.id, (cartQuantities[prod.id] || 1) - 1)}
+                          className="btn btn-secondary btn-sm"
+                          disabled={(cartQuantities[prod.id] || 1) <= 1 || prod.quantity === 0}
+                        >
+                          -
+                        </button>
+
+                        <span
+                          className="quantity-display"
+                          style={{ margin: '0 8px', width: '30px', textAlign: 'center' }}
+                        >
+                          {cartQuantities[prod.id] || 1}
+                        </span>
+
+                        <button
+                          onClick={() => handleCartQtyChange(prod.id, (cartQuantities[prod.id] || 1) + 1)}
+                          className="btn btn-secondary btn-sm"
+                          disabled={(cartQuantities[prod.id] || 1) >= prod.quantity || prod.quantity === 0}
+                        >
+                          +
+                        </button>
+
+                        <button
+                          onClick={() => handleAddToCart(prod.id, prod.quantity)}
+                          className="btn btn-success btn-sm"
+                          style={{ marginLeft: '10px' }}
+                          disabled={prod.quantity === 0 || (cartQuantities[prod.id] || 1) > prod.quantity}
+                        >
+                          {prod.quantity > 0 ? 'Comprar' : 'Esgotado'}
+                        </button>
+                      </div>
+                    </td>
+                  ) : null}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <button
+          onClick={() => navigate('/cart')}
+          className="btn btn-primary"
+          style={{ marginTop: '20px', width: '100%', height: '65px' }}
+        >
+          Ver Meu Carrinho e Finalizar Compra
+        </button>
       </div>
     </div>
   );
