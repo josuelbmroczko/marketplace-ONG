@@ -28,9 +28,30 @@ public class OrganizationController {
     public List<Organization> listOrganizations() {
         return organizationRepository.findAll();
     }
+
     @GetMapping("/{id}")
     public Organization getOrganizationById(@PathVariable("id") UUID id) {
         return organizationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada"));
+    }
+
+    @PutMapping("/{id}")
+    public Organization updateOrganization(@PathVariable("id") UUID id, @RequestBody Organization updatedOrg) {
+        return organizationRepository.findById(id)
+                .map(org -> {
+                    org.setName(updatedOrg.getName());
+                    return organizationRepository.save(org);
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada"));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOrganization(@PathVariable("id") UUID id) {
+
+        if (!organizationRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Organização não encontrada");
+        }
+        organizationRepository.deleteById(id);
     }
 }
