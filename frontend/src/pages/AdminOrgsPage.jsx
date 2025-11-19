@@ -173,13 +173,13 @@ function AdminOrgsPage() {
 
       <Link to="/admin/users" className="nav-link">← Voltar para Gerenciar Usuários</Link>
 
-      <h1>🏢 Gerenciar Organizações</h1>
+      <h1> Gerenciar Organizações</h1>
       <p style={{ color: '#7f8c8d', marginBottom: '30px' }}>Cadastre, edite ou remova ONGs parceiras.</p>
 
-      {error && <div className="error-message">⚠️ {error}</div>}
+      {error && <div className="error-message"> {error}</div>}
 
       <div className="card" style={{ borderLeft: editingOrg ? '5px solid var(--warning)' : '5px solid var(--success)' }}>
-        <h2>{editingOrg ? '✏️ Editar ONG' : '✨ Nova ONG'}</h2>
+        <h2>{editingOrg ? ' Editar ONG' : 'Nova ONG'}</h2>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'flex-end', gap: '15px', flexWrap: 'wrap' }}>
           <div className="form-group">
