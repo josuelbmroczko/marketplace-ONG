@@ -10,15 +10,21 @@ Existem duas formas de executar o projeto: usando Docker (recomendado) ou localm
 
 2. Crie o arquivo .env na raiz do projeto com o seguinte conteúdo:
 
-POSTGRES_DB=marketplace_db
-POSTGRES_USER=marketplace_user
-POSTGRES_PASSWORD=postgres
-
-GEMINI_API_KEY=SUA_CHAVE_API_VAI_AQUI
-GEMINI_API_URL=https://generativelanguage.googleapis.com/...
+# --- Banco de Dados ---
+DB_URL=jdbc:postgresql://localhost:5432/marketplace_db
+DB_USER=marketplace_user
+DB_PASSWORD=postgres
+# --- Configurações da API Interna ---
+API_BASE_URL=http://localhost:8080/api
+# --- Gemini AI ---
+# Coloque sua NOVA chave aqui (não use a que vazou)
+GEMINI_API_KEY=AIzaSyBg-SUA-NOVA-CHAVE-GERADA-AQUI
+GEMINI_API_BASE_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent
 
 3. Suba os containers:
+   curl "https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSyBg-ABoxt6hI7y9IHCRmNgRC6e3z-UOskk"
    docker-compose up --build
+4.
 
 4. Acesse a aplicação:
    http://localhost:8080
@@ -64,25 +70,3 @@ http://localhost:5173
 
 (O vite.config.js já faz o proxy para o backend automaticamente)
 
-------------------------------------------------------------
-
-## Estrutura do Projeto
-
-marketplace-ONG/
-├── Dockerfile
-├── docker-compose.yml
-├── pom.xml
-├── mvnw
-├── mvnw.cmd
-├── .env.example
-├── frontend/
-│   ├── vite.config.js
-│   ├── package.json
-│   └── src/
-└── src/
-├── main/
-├── java/
-└── resources/
-├── application.properties
-├── logback.xml
-└── static/
